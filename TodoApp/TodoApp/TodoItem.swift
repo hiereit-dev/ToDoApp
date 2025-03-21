@@ -13,18 +13,20 @@ struct TodoItem: Hashable {
     let id: UUID
     let title: String
     let content: String?
-    //let isCompleted: Bool
+    var isCompleted: Bool?
   
-    init(id: UUID, title: String, content: String? = nil) {
+    init(id: UUID, title: String, content: String? = nil, isCompleted: Bool? = false) {
         self.id = id
         self.title = title
         self.content = content
+        self.isCompleted = isCompleted ?? false
     }
     
-    init(title: String, content: String? = nil) {
+    init(title: String, content: String? = nil, isCompleted: Bool? = false) {
         self.id = UUID()
         self.title = title
         self.content = content
+        self.isCompleted = isCompleted ?? false
     }
     
     func hash(into hasher: inout Hasher) {
@@ -43,7 +45,8 @@ extension TodoItem {
         entity.id = id
         entity.title = title
         entity.content = content
-        entity.createAt = Date()
+        entity.status = isCompleted ?? false
+        entity.createdAt = Date()
         return entity
     }
     
@@ -54,7 +57,7 @@ extension TodoItem {
             return nil
         }
         
-        var item = TodoItem(id: id, title: title, content: content)
+        let item = TodoItem(id: id, title: title, content: content, isCompleted: entity.status)
         return item
     }
     

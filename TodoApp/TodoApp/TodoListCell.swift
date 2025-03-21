@@ -17,6 +17,9 @@ class TodoListCell: UITableViewCell {
     let contentLabel = UILabel()
     let checkBoxImageView = UIImageView()
     
+    // 체크박스 선택후 데이터 전달 closure
+    var checkBoxHandler: ((Bool) -> Void)?
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -45,6 +48,11 @@ class TodoListCell: UITableViewCell {
             contentLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -16),
             contentLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -8),
         ])
+        
+        // 체크박스 이미지에 탭 제스처 추가
+        let tapGesture = UITapGestureRecognizer(target: self, action : #selector(checkBoxTapped))
+        checkBoxImageView.addGestureRecognizer(tapGesture)
+        checkBoxImageView.isUserInteractionEnabled = true
     }
     
     required init?(coder: NSCoder) {
@@ -62,10 +70,15 @@ class TodoListCell: UITableViewCell {
         // Configure the view for the selected state
     }
     
-    func configure(title: String, content: String, isChecked: Bool = false) {
-        titleLabel.text = title
-        contentLabel.text = content
-        checkBoxImageView.image = isChecked ? UIImage(systemName: "checkmark.square.fill") : UIImage(systemName: "square")
+    func configure(item: TodoItem) {
+        titleLabel.text = item.title
+        contentLabel.text = item.content
+        checkBoxImageView.image = (item.isCompleted ?? false) ? UIImage(systemName: "checkmark.square.fill") : UIImage(systemName: "square")
     }
-
+    
+    @objc func checkBoxTapped(_ sender: Any) {
+        checkBoxHandler?(checkBoxImageView.image == UIImage(systemName: "checkmark.square.fill") ? false : true)
+        checkBoxImageView.image = checkBoxImageView.image == UIImage(systemName: "checkmark.square.fill") ? UIImage(systemName: "square") : UIImage(systemName: "checkmark.square.fill")
+    }
+    
 }

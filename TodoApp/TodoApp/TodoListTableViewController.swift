@@ -18,9 +18,7 @@ class TodoListTableViewController: UITableViewController {
         
         configureTableView()
         
-        items = DataManager.shared.loadGridItems()
-        
-        tableView.reloadData()
+        reloadTodoListView()
     }
     
     private func configureNavigation() {
@@ -38,10 +36,20 @@ class TodoListTableViewController: UITableViewController {
         tableView.rowHeight = UITableView.automaticDimension
     }
     
+    private func reloadTodoListView() {
+        print("reload Data")
+        
+        Task {
+            let loadedItems = await DataManager.shared.loadTodoItems()
+            items = loadedItems
+            tableView.reloadData()
+            print(items.map {$0.isCompleted})
+        }
+    }
+    
     @objc func addNewItem() {
         DataManager.shared.saveTodoItems(TodoItem(title: "타이틀 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트", content: "긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트"))
-        items = DataManager.shared.loadGridItems()
-        tableView.reloadData()
+        reloadTodoListView()
     }
     
 
@@ -57,7 +65,14 @@ class TodoListTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodoListCell", for: indexPath) as! TodoListCell
         let item = items[indexPath.row]
-        cell.configure(title: item.title, content: item.content ?? "")
+        cell.configure(item: item)
+        cell.checkBoxHandler = { [weak self] checked in
+            Task {
+                print("checked:\(checked)")
+                await DataManager.shared.updateTodoItemStatus(item: item, isChecked: checked)
+                await self?.reloadTodoListView()
+            }
+        }
         return cell
     }
     

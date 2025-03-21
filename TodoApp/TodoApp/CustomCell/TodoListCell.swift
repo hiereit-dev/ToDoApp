@@ -89,7 +89,12 @@ class TodoListCell: UITableViewCell {
     }
     
     func configure(item: TodoItem) {
-        titleLabel.text = item.title
+        
+        if (item.isCompleted ?? false) {
+            titleLabel.attributedText = getUnderlineText(item.title)
+        } else {
+            titleLabel.text = item.title
+        }
         contentLabel.text = item.content
         checkBoxImageView.image = (item.isCompleted ?? false) ? UIImage(systemName: "checkmark.square.fill") : UIImage(systemName: "square")
         dateLabel.text = "\(item.createdAt.formattedDate)"
@@ -98,6 +103,17 @@ class TodoListCell: UITableViewCell {
     @objc func checkBoxTapped(_ sender: Any) {
         checkBoxHandler?(checkBoxImageView.image == UIImage(systemName: "checkmark.square.fill") ? false : true)
         checkBoxImageView.image = checkBoxImageView.image == UIImage(systemName: "checkmark.square.fill") ? UIImage(systemName: "square") : UIImage(systemName: "checkmark.square.fill")
+    }
+    
+    func getUnderlineText(_ text: String) -> NSAttributedString {
+        let attributedString = NSAttributedString(
+            string: text,
+            attributes: [
+                .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                .strikethroughColor: UIColor.black
+            ]
+        )
+        return attributedString
     }
     
 }

@@ -8,5 +8,5 @@
 import Foundation
 
 protocol NavigationDelegate: AnyObject {
-    func receiveData(_ data: Any)
+    func receiveData(_ data: [String: Any])
 }

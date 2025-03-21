@@ -40,6 +40,19 @@ class AddTodoViewController: UIViewController {
         return button
     }()
     
+    let memoPad: UITextView = {
+        let textView = UITextView()
+        textView.backgroundColor = UIColor.systemGray6
+        textView.textColor = .black
+        textView.font = .systemFont(ofSize: 16)
+        
+        textView.layer.cornerRadius = 8
+        textView.clipsToBounds = true
+        // textView padding
+        textView.textContainerInset = UIEdgeInsets(top: 16, left: 8, bottom: 16, right: 8)
+        return textView
+    }()
+    
     var navigationDataDelegate: NavigationDelegate?
     
     override func viewDidLoad() {
@@ -61,10 +74,12 @@ class AddTodoViewController: UIViewController {
         textField.translatesAutoresizingMaskIntoConstraints = false
         messageLabel.translatesAutoresizingMaskIntoConstraints = false
         doneButton.translatesAutoresizingMaskIntoConstraints = false
+        memoPad.translatesAutoresizingMaskIntoConstraints = false
         
         view.addSubview(textField)
         view.addSubview(messageLabel)
         view.addSubview(doneButton)
+        view.addSubview(memoPad)
         
         NSLayoutConstraint.activate([
             doneButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
@@ -79,7 +94,12 @@ class AddTodoViewController: UIViewController {
             
             messageLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             messageLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            messageLabel.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 8)
+            messageLabel.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 8),
+            
+            memoPad.topAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: 16),
+            memoPad.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            memoPad.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            memoPad.heightAnchor.constraint(equalToConstant: 200)
         ])
         
         doneButton.addTarget(self, action: #selector(saveItem), for: .touchUpInside)
@@ -92,7 +112,7 @@ class AddTodoViewController: UIViewController {
         }
 
         // 텍스트가 유효하면 delegate에 데이터 전달하고 화면 이동
-        navigationDataDelegate?.receiveData(text)
+        navigationDataDelegate?.receiveData(["title": text, "content": memoPad.text ?? ""])
         self.navigationController?.popViewController(animated: true)
     }
 

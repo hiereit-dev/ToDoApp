@@ -44,7 +44,7 @@ extension TodoItem {
         
         entity.id = id
         entity.title = title
-        entity.content = content
+        entity.content = content ?? ""
         entity.status = isCompleted ?? false
         entity.createdAt = Date()
         return entity

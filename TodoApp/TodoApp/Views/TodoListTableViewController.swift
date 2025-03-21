@@ -43,13 +43,18 @@ class TodoListTableViewController: UITableViewController {
             let loadedItems = await DataManager.shared.loadTodoItems()
             items = loadedItems
             tableView.reloadData()
-            print(items.map {$0.isCompleted})
         }
     }
     
     @objc func addNewItem() {
+        /*
         DataManager.shared.saveTodoItems(TodoItem(title: "타이틀 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트", content: "긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트"))
         reloadTodoListView()
+         */
+        
+        var addVC = AddTodoViewController()
+        addVC.navigationDataDelegate = self
+        self.navigationController?.pushViewController(addVC, animated: true)
     }
     
 
@@ -89,5 +94,15 @@ class TodoListTableViewController: UITableViewController {
             DataManager.shared.deleteItem(item)
         })
         present(alert, animated: true)
+    }
+}
+
+
+extension TodoListTableViewController: NavigationDelegate {
+    func receiveData(_ data: Any) {
+        if let data = data as? String {
+            DataManager.shared.saveTodoItems(TodoItem(title: data))
+            reloadTodoListView()
+        }
     }
 }

@@ -47,12 +47,7 @@ class TodoListTableViewController: UITableViewController {
     }
     
     @objc func addNewItem() {
-        /*
-        DataManager.shared.saveTodoItems(TodoItem(title: "타이틀 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트", content: "긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트 긴글테스트 긴글 테스트"))
-        reloadTodoListView()
-         */
-        
-        var addVC = AddTodoViewController()
+        let addVC = AddTodoViewController()
         addVC.navigationDataDelegate = self
         self.navigationController?.pushViewController(addVC, animated: true)
     }
@@ -75,7 +70,7 @@ class TodoListTableViewController: UITableViewController {
             Task {
                 print("checked:\(checked)")
                 await DataManager.shared.updateTodoItemStatus(item: item, isChecked: checked)
-                await self?.reloadTodoListView()
+                self?.reloadTodoListView()
             }
         }
         return cell
@@ -90,8 +85,9 @@ class TodoListTableViewController: UITableViewController {
         let alert = UIAlertController(title: "아이템 삭제", message: "\(item.title)을/를 삭제하시겠습니까?", preferredStyle: .alert)
         
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { _ in
+        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
             DataManager.shared.deleteItem(item)
+            self?.reloadTodoListView()
         })
         present(alert, animated: true)
     }

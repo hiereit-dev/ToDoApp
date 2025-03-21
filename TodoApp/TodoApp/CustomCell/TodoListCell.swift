@@ -11,10 +11,14 @@ class TodoListCell: UITableViewCell {
 
     let titleLabel: UILabel = {
        let label = UILabel()
-        label.font = .systemFont(ofSize: 24, weight: .medium)
+        label.font = .systemFont(ofSize: 20, weight: .medium)
         return label
     }()
-    let contentLabel = UILabel()
+    let contentLabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14, weight: .medium)
+        return label
+     }()
     let checkBoxImageView = UIImageView()
     
     // 체크박스 선택후 데이터 전달 closure

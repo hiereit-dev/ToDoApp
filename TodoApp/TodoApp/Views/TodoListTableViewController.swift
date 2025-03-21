@@ -18,6 +18,8 @@ class TodoListTableViewController: UITableViewController {
         
         configureTableView()
         
+        configureSearchController()
+        
         reloadTodoListView()
     }
     
@@ -82,14 +84,28 @@ class TodoListTableViewController: UITableViewController {
         
         let item = items[indexPath.row]
         
-        let alert = UIAlertController(title: "아이템 삭제", message: "\(item.title)을/를 삭제하시겠습니까?", preferredStyle: .alert)
-        
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
-            DataManager.shared.deleteItem(item)
-            self?.reloadTodoListView()
-        })
-        present(alert, animated: true)
+        let alert = UIAlertController(title: "할일 수정", message: "", preferredStyle: .alert)
+
+        alert.addTextField { textField in
+            textField.text = item.title
+            textField.placeholder = "할일을 수정해주세요."
+            textField.keyboardType = .default
+        }
+
+        let okAction = UIAlertAction(title: "확인", style: .default) { [weak self] action in
+            Task {
+                if let inputText = alert.textFields?.first?.text {
+                    await DataManager.shared.updateTodoItem(item: item, title: inputText)
+                    self?.reloadTodoListView()
+                }
+            }
+        }
+
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        alert.addAction(okAction)
+        alert.addAction(cancelAction)
+
+        self.present(alert, animated: true, completion: nil)
     }
 }
 
@@ -99,6 +115,36 @@ extension TodoListTableViewController: NavigationDelegate {
         if let data = data as? String {
             DataManager.shared.saveTodoItems(TodoItem(title: data, createdAt: Date()))
             reloadTodoListView()
+        }
+    }
+}
+
+extension TodoListTableViewController: UISearchResultsUpdating {
+    func configureSearchController() {
+        let searchController = UISearchController()
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.placeholder = "검색"
+        navigationItem.searchController = searchController
+        
+        navigationItem.hidesSearchBarWhenScrolling = false
+        
+        definesPresentationContext = true
+    }
+    
+    func searchTodoItems(_ text: String) async {
+        if text.isEmpty {
+            reloadTodoListView()
+            return
+        }
+        
+        items = await DataManager.shared.searchTodoItems(text)
+        tableView.reloadData()
+    }
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let text = searchController.searchBar.text else { return }
+        Task {
+            await searchTodoItems(text)
         }
     }
 }

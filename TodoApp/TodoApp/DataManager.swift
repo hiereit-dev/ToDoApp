@@ -67,6 +67,27 @@ class DataManager {
             continuation.resume()
         }
     }
+    
+    func updateTodoItem(item: TodoItem, title: String) async {
+        await withCheckedContinuation { continuation in
+            let request: NSFetchRequest<TodoItemEntity> = TodoItemEntity.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", item.id as CVarArg)
+            
+            do {
+                let result = try viewContext.fetch(request)
+                if let todoItem = result.first {
+                    todoItem.title = title
+                    try viewContext.save()
+                    print("업데이트 성공")
+                } else {
+                    print("업데이트 실패")
+                }
+            } catch {
+                print("데이터 로드 실패: \(error.localizedDescription)")
+            }
+            continuation.resume()
+        }
+    }
 
     
     // todo 삭제 메소드
@@ -83,6 +104,24 @@ class DataManager {
             
         } catch {
             print("삭제 실패: \(error)")
+        }
+    }
+    
+    func searchTodoItems(_ text: String) async -> [TodoItem] {
+        await withCheckedContinuation { continuation in
+            
+            let request: NSFetchRequest<TodoItemEntity> = TodoItemEntity.fetchRequest()
+            
+            request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", text)
+            
+            do {
+                let result = try viewContext.fetch(request)
+                let items = result.compactMap { TodoItem.from($0) }
+                continuation.resume(returning: items)
+            } catch {
+                print("검색 실패 :\(error)")
+                continuation.resume(returning: [])
+            }
         }
     }
     

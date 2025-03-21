@@ -17,9 +17,18 @@ class TodoListCell: UITableViewCell {
     let contentLabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.numberOfLines = 0
         return label
      }()
+    
     let checkBoxImageView = UIImageView()
+    
+    let dateLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .systemGray
+        label.font = .systemFont(ofSize: 12)
+        return label
+    }()
     
     // 체크박스 선택후 데이터 전달 closure
     var checkBoxHandler: ((Bool) -> Void)?
@@ -30,10 +39,12 @@ class TodoListCell: UITableViewCell {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentLabel.translatesAutoresizingMaskIntoConstraints = false
         checkBoxImageView.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
         
         contentView.addSubview(titleLabel)
         contentView.addSubview(contentLabel)
         contentView.addSubview(checkBoxImageView)
+        contentView.addSubview(dateLabel)
         
         NSLayoutConstraint.activate([
             
@@ -44,13 +55,16 @@ class TodoListCell: UITableViewCell {
             
             titleLabel.leadingAnchor.constraint(equalTo: checkBoxImageView.trailingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(greaterThanOrEqualTo: contentView.trailingAnchor, constant: -16),
             titleLabel.bottomAnchor.constraint(equalTo: contentLabel.topAnchor, constant: -8),
             
+            dateLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            
             contentLabel.leadingAnchor.constraint(equalTo: checkBoxImageView.trailingAnchor, constant: 16),
             contentLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -16),
-            contentLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -8),
+            contentLabel.bottomAnchor.constraint(lessThanOrEqualTo: dateLabel.topAnchor, constant: -8)
         ])
         
         // 체크박스 이미지에 탭 제스처 추가
@@ -78,6 +92,7 @@ class TodoListCell: UITableViewCell {
         titleLabel.text = item.title
         contentLabel.text = item.content
         checkBoxImageView.image = (item.isCompleted ?? false) ? UIImage(systemName: "checkmark.square.fill") : UIImage(systemName: "square")
+        dateLabel.text = "\(item.createdAt.formattedDate)"
     }
     
     @objc func checkBoxTapped(_ sender: Any) {

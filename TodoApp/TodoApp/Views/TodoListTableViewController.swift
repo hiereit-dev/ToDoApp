@@ -97,7 +97,7 @@ class TodoListTableViewController: UITableViewController {
 extension TodoListTableViewController: NavigationDelegate {
     func receiveData(_ data: Any) {
         if let data = data as? String {
-            DataManager.shared.saveTodoItems(TodoItem(title: data))
+            DataManager.shared.saveTodoItems(TodoItem(title: data, createdAt: Date()))
             reloadTodoListView()
         }
     }

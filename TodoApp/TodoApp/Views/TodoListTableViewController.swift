@@ -11,6 +11,12 @@ class TodoListTableViewController: UITableViewController {
 
     var items = [TodoItem]()
     
+    let emptyView: UIView = {
+        let view = UIView()
+        view.isHidden = true
+        return view
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -23,6 +29,42 @@ class TodoListTableViewController: UITableViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         reloadTodoListView()
+        
+        setupEmptyView()
+    }
+    
+    private func setupEmptyView() {
+        
+        let emptyIconView = UIImageView(image: UIImage(systemName: "plus.square.dashed"))
+        emptyIconView.tintColor = .systemGray5
+        let titleLabel = UILabel()
+        titleLabel.text = "할일을 추가해주세요!"
+        titleLabel.font = .systemFont(ofSize: 18, weight: .medium)
+        
+        emptyView.translatesAutoresizingMaskIntoConstraints = false
+        emptyIconView.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(emptyView)
+        emptyView.addSubview(emptyIconView)
+        emptyView.addSubview(titleLabel)
+        
+        NSLayoutConstraint.activate([
+            emptyView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            emptyView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            emptyView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            emptyView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            emptyIconView.widthAnchor.constraint(equalToConstant: 100),
+            emptyIconView.heightAnchor.constraint(equalToConstant: 100),
+            emptyIconView.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor),
+            emptyIconView.centerYAnchor.constraint(equalTo: emptyView.centerYAnchor),
+            
+            titleLabel.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor),
+            titleLabel.topAnchor.constraint(equalTo: emptyIconView.bottomAnchor, constant: 16)
+        ])
+        
+        emptyView.isHidden = !(items.isEmpty)
     }
     
     private func configureNavigation() {
@@ -51,7 +93,6 @@ class TodoListTableViewController: UITableViewController {
     
     private func configureTableView() {
         tableView.register(TodoListCell.self, forCellReuseIdentifier: "TodoListCell")
-        
         tableView.rowHeight = UITableView.automaticDimension
     }
     
@@ -103,7 +144,6 @@ class TodoListTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
         tableView.deselectRow(at: indexPath, animated: true)
         
         let item = items[indexPath.row]
@@ -131,6 +171,23 @@ class TodoListTableViewController: UITableViewController {
 
         self.present(alert, animated: true, completion: nil)
     }
+    
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let item = items[indexPath.row]
+        
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (action, view, completionHandler) in
+            // 아이템 삭제 처리
+            DataManager.shared.deleteItem(item)
+            self?.reloadTodoListView()
+            
+            completionHandler(true)
+        }
+        
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        return configuration
+    }
+    
 }
 
 // MARK: NavigationDelegate
@@ -153,7 +210,7 @@ extension TodoListTableViewController: UISearchResultsUpdating {
         
         navigationItem.hidesSearchBarWhenScrolling = false
         
-        definesPresentationContext = true
+        definesPresentationContext = false
     }
     
     func searchTodoItems(_ text: String) async {

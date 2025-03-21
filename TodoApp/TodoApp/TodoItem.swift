@@ -1,0 +1,61 @@
+//
+//  TodoItem.swift
+//  TodoApp
+//
+//  Created by 박세라 on 3/20/25.
+//
+
+import Foundation
+import UIKit
+import CoreData
+
+struct TodoItem: Hashable {
+    let id: UUID
+    let title: String
+    let content: String?
+    //let isCompleted: Bool
+  
+    init(id: UUID, title: String, content: String? = nil) {
+        self.id = id
+        self.title = title
+        self.content = content
+    }
+    
+    init(title: String, content: String? = nil) {
+        self.id = UUID()
+        self.title = title
+        self.content = content
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: TodoItem, rhs: TodoItem) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
+extension TodoItem {
+    func toManagedObject(in context: NSManagedObjectContext) -> TodoItemEntity {
+        let entity = TodoItemEntity(context: context)
+        
+        entity.id = id
+        entity.title = title
+        entity.content = content
+        entity.createAt = Date()
+        return entity
+    }
+    
+    static func from(_ entity: TodoItemEntity) -> TodoItem? {
+        guard let id = entity.id,
+              let title = entity.title,
+              let content = entity.content else {
+            return nil
+        }
+        
+        var item = TodoItem(id: id, title: title, content: content)
+        return item
+    }
+    
+}

@@ -8,6 +8,7 @@
 import Foundation
 
 extension Date {
+    // Date -> yyyy-MM-dd HH:mm 포맷인 String으로 변환
     var formattedDate: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"

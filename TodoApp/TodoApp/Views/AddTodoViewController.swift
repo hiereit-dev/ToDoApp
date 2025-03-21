@@ -34,7 +34,7 @@ class AddTodoViewController: UIViewController {
     let doneButton: UIButton = {
         let button = UIButton()
         button.setTitle("등록", for: .normal)
-        button.backgroundColor = .systemBlue  // 배경색을 설정하여 버튼이 보이게 함
+        button.backgroundColor = .systemBlue
         button.layer.cornerRadius = 8
         button.clipsToBounds = true
         return button
@@ -53,6 +53,7 @@ class AddTodoViewController: UIViewController {
         return textView
     }()
     
+    // 화면이 닫히면서 정보전달하는 Delegate
     var navigationDataDelegate: NavigationDelegate?
     
     override func viewDidLoad() {
@@ -105,13 +106,14 @@ class AddTodoViewController: UIViewController {
         doneButton.addTarget(self, action: #selector(saveItem), for: .touchUpInside)
     }
     
+    // 할일 저장
     @objc func saveItem() {
         guard let text = textField.text, !text.isEmpty else {
-            showErrorMessage("할일을 입력해주세요.")
+            showErrorMessage("할일을 입력해주세요.") // 입력 창이 비었을 경우 유효성검사 후 안내 메시지 노출
             return
         }
 
-        // 텍스트가 유효하면 delegate에 데이터 전달하고 화면 이동
+        // 텍스트가 유효하면 delegate에 데이터 전달하고 화면 이동 [String: Any] 형태로 전송
         navigationDataDelegate?.receiveData(["title": text, "content": memoPad.text ?? ""])
         self.navigationController?.popViewController(animated: true)
     }

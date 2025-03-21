@@ -7,6 +7,7 @@
 
 import Foundation
 
+// 화면간 정보 전송 protocol
 protocol NavigationDelegate: AnyObject {
     func receiveData(_ data: [String: Any])
 }

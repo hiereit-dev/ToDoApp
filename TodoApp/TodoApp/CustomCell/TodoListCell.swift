@@ -90,6 +90,7 @@ class TodoListCell: UITableViewCell {
     
     func configure(item: TodoItem) {
         
+        // 완료된 할일에 취소선 추가
         if (item.isCompleted ?? false) {
             titleLabel.attributedText = getUnderlineText(item.title)
         } else {
@@ -105,6 +106,7 @@ class TodoListCell: UITableViewCell {
         checkBoxImageView.image = checkBoxImageView.image == UIImage(systemName: "checkmark.square.fill") ? UIImage(systemName: "square") : UIImage(systemName: "checkmark.square.fill")
     }
     
+    // 취소선 attribute 추가
     func getUnderlineText(_ text: String) -> NSAttributedString {
         let attributedString = NSAttributedString(
             string: text,

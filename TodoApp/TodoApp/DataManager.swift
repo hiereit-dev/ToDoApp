@@ -46,7 +46,7 @@ class DataManager {
         }
     }
     
-    // todo 진행상태 update
+    // todo 완료 상태 update
     func updateTodoItemStatus(item: TodoItem, isChecked: Bool) async {
         await withCheckedContinuation { continuation in
             let request: NSFetchRequest<TodoItemEntity> = TodoItemEntity.fetchRequest()
@@ -68,6 +68,7 @@ class DataManager {
         }
     }
     
+    // 할일 수정 메소드
     func updateTodoItem(item: TodoItem, title: String) async {
         await withCheckedContinuation { continuation in
             let request: NSFetchRequest<TodoItemEntity> = TodoItemEntity.fetchRequest()
@@ -107,6 +108,7 @@ class DataManager {
         }
     }
     
+    // keyword 검색 메소드
     func searchTodoItemsWithKeyword(_ text: String) async -> [TodoItem] {
         await withCheckedContinuation { continuation in
             
@@ -125,6 +127,7 @@ class DataManager {
         }
     }
     
+    // 진행상태 필터 메소드
     func searchTodoItemsWithChecked(_ isCompleted: Bool) async -> [TodoItem] {
         await withCheckedContinuation { continuation in
             

@@ -9,8 +9,10 @@ import UIKit
 
 class TodoListTableViewController: UITableViewController {
 
+    // todo Data
     var items = [TodoItem]()
     
+    // items가 비어있을 때 노출시키는 뷰
     let emptyView: UIView = {
         let view = UIView()
         view.isHidden = true
@@ -33,8 +35,8 @@ class TodoListTableViewController: UITableViewController {
         setupEmptyView()
     }
     
+    // empty View 설정
     private func setupEmptyView() {
-        
         let emptyIconView = UIImageView(image: UIImage(systemName: "plus.square.dashed"))
         emptyIconView.tintColor = .systemGray5
         let titleLabel = UILabel()
@@ -67,6 +69,7 @@ class TodoListTableViewController: UITableViewController {
         emptyView.isHidden = !(items.isEmpty)
     }
     
+    // navigation 설정
     private func configureNavigation() {
         title = "할일 목록"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -76,7 +79,7 @@ class TodoListTableViewController: UITableViewController {
             barButtonSystemItem: .add, target: self, action: #selector(addNewItem)
         )
         
-        // 좌측 할일 필터링 BarButton
+        // 좌측 할일 필터링 BarButton -> "UIMenu" 설정
         let doneFilter = UIAction(title: "완료한 일", image: UIImage(systemName: "checkmark.square.fill")) { [weak self] _ in
             self?.filterItems(checked: true)
         }
@@ -91,14 +94,14 @@ class TodoListTableViewController: UITableViewController {
         
     }
     
+    // 테이블뷰 설정 : customCell 등록, rowHeight 내용물에 맞게 높이 지정되도록 설정
     private func configureTableView() {
         tableView.register(TodoListCell.self, forCellReuseIdentifier: "TodoListCell")
         tableView.rowHeight = UITableView.automaticDimension
     }
     
+    // 데이터 불러오는 메소드 (데이터 불러오고 테이블 리프레싱)
     private func reloadTodoListView() {
-        print("reload Data")
-        
         Task {
             let loadedItems = await DataManager.shared.loadTodoItems()
             items = loadedItems
@@ -106,12 +109,14 @@ class TodoListTableViewController: UITableViewController {
         }
     }
     
+    // 할일 추가화면으로 이동
     @objc func addNewItem() {
         let addVC = AddTodoViewController()
         addVC.navigationDataDelegate = self
         self.navigationController?.pushViewController(addVC, animated: true)
     }
     
+    // 필터 적용
     func filterItems(checked: Bool) {
         Task {
             items = await DataManager.shared.searchTodoItemsWithChecked(checked)
@@ -120,7 +125,12 @@ class TodoListTableViewController: UITableViewController {
     }
     
 
-    // MARK: - Table view data source
+    
+    
+}
+
+// MARK: - Table view data source & delegate
+extension TodoListTableViewController {
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -143,6 +153,7 @@ class TodoListTableViewController: UITableViewController {
         return cell
     }
     
+    // cell 선택 시 항목 수정하는 Alert
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
@@ -172,6 +183,7 @@ class TodoListTableViewController: UITableViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    // Swipe Action으로 todo 삭제
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let item = items[indexPath.row]
@@ -187,10 +199,9 @@ class TodoListTableViewController: UITableViewController {
         let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
         return configuration
     }
-    
 }
 
-// MARK: NavigationDelegate
+// MARK: NavigationDelegate - 다른 화면으로 부터 받아온 데이터를 처리하는 delegate 함수
 extension TodoListTableViewController: NavigationDelegate {
     func receiveData(_ data: [String: Any]) {
         if let title = data["title"] as? String,
@@ -201,6 +212,8 @@ extension TodoListTableViewController: NavigationDelegate {
     }
 }
 
+
+// MARK: UISearchResultsUpdating - 검색 바 관련 delegate 함수
 extension TodoListTableViewController: UISearchResultsUpdating {
     func configureSearchController() {
         let searchController = UISearchController()
@@ -215,10 +228,9 @@ extension TodoListTableViewController: UISearchResultsUpdating {
     
     func searchTodoItems(_ text: String) async {
         if text.isEmpty {
-            reloadTodoListView()
+            reloadTodoListView() // 화면 갱신
             return
         }
-        
         items = await DataManager.shared.searchTodoItemsWithKeyword(text)
         tableView.reloadData()
     }

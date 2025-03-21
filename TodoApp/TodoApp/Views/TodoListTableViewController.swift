@@ -19,7 +19,9 @@ class TodoListTableViewController: UITableViewController {
         configureTableView()
         
         configureSearchController()
-        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
         reloadTodoListView()
     }
     
@@ -27,9 +29,24 @@ class TodoListTableViewController: UITableViewController {
         title = "할일 목록"
         navigationController?.navigationBar.prefersLargeTitles = true
         
+        // 우측 할일 추가 BarButton
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .add, target: self, action: #selector(addNewItem)
         )
+        
+        // 좌측 할일 필터링 BarButton
+        let doneFilter = UIAction(title: "완료한 일", image: UIImage(systemName: "checkmark.square.fill")) { [weak self] _ in
+            self?.filterItems(checked: true)
+        }
+        let todoFilter = UIAction(title: "해야할 일", image: UIImage(systemName: "pencil")) { [weak self] _ in
+            self?.filterItems(checked: false)
+        }
+        
+        let menu = UIMenu(title: "필터", children: [doneFilter, todoFilter])
+        let menuButton = UIBarButtonItem(image: UIImage(systemName: "line.3.horizontal.decrease.circle"), menu: menu)
+        
+        navigationItem.leftBarButtonItem = menuButton
+        
     }
     
     private func configureTableView() {
@@ -52,6 +69,13 @@ class TodoListTableViewController: UITableViewController {
         let addVC = AddTodoViewController()
         addVC.navigationDataDelegate = self
         self.navigationController?.pushViewController(addVC, animated: true)
+    }
+    
+    func filterItems(checked: Bool) {
+        Task {
+            items = await DataManager.shared.searchTodoItemsWithChecked(checked)
+            self.tableView.reloadData()
+        }
     }
     
 
@@ -138,7 +162,7 @@ extension TodoListTableViewController: UISearchResultsUpdating {
             return
         }
         
-        items = await DataManager.shared.searchTodoItems(text)
+        items = await DataManager.shared.searchTodoItemsWithKeyword(text)
         tableView.reloadData()
     }
     

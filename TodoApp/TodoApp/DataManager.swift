@@ -107,12 +107,31 @@ class DataManager {
         }
     }
     
-    func searchTodoItems(_ text: String) async -> [TodoItem] {
+    func searchTodoItemsWithKeyword(_ text: String) async -> [TodoItem] {
         await withCheckedContinuation { continuation in
             
             let request: NSFetchRequest<TodoItemEntity> = TodoItemEntity.fetchRequest()
             
             request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", text)
+            
+            do {
+                let result = try viewContext.fetch(request)
+                let items = result.compactMap { TodoItem.from($0) }
+                continuation.resume(returning: items)
+            } catch {
+                print("검색 실패 :\(error)")
+                continuation.resume(returning: [])
+            }
+        }
+    }
+    
+    func searchTodoItemsWithChecked(_ isCompleted: Bool) async -> [TodoItem] {
+        await withCheckedContinuation { continuation in
+            
+            let request: NSFetchRequest<TodoItemEntity> = TodoItemEntity.fetchRequest()
+            
+            // Bool 0 또는 1로 처리 -> 쿼리에서 %d 사용
+            request.predicate = NSPredicate(format: "status == %d", isCompleted ? 1 : 0)
             
             do {
                 let result = try viewContext.fetch(request)

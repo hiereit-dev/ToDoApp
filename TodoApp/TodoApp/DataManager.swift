@@ -44,7 +44,7 @@ class DataManager {
     }
     
     // todo 삭제 메소드
-    func deleteGridItem(_ item: TodoItem) {
+    func deleteItem(_ item: TodoItem) {
         let request: NSFetchRequest<TodoItemEntity> = TodoItemEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id = %@", item.id as CVarArg)
         
